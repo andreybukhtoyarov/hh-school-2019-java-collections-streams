@@ -5,16 +5,27 @@ import common.Task;
 import common.Vacancy;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 Из коллекции компаний необходимо получить всевозможные различные названия вакансий
  */
 public class Task7 implements Task {
-
+  /**
+   * Получает названия вакансий из коллекции компаний Collection<Company>.
+   * @param companies - коллекция компаний Collection<Company>.
+   * @return множество названий вакансий.
+   */
   private Set<String> vacancyNames(Collection<Company> companies) {
-    return new HashSet<>();
+    return companies != null ? companies.stream()
+            .map(Company::getVacancies)
+            .flatMap(
+                    vacancies -> vacancies.stream().map(Vacancy::getTitle)
+            )
+            .collect(Collectors.toSet())
+            : Collections.emptySet();
   }
 
   @Override

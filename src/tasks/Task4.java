@@ -5,8 +5,9 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
 Задача 4
@@ -17,9 +18,14 @@ FYI - DTO = Data Transfer Object
  */
 public class Task4 implements Task {
 
-  // !!! Редактируйте этот метод !!!
+  /**
+   * Конвертирует список персон класса Person в список ApiPersonDto
+   * @param persons - список персон класса Person
+   * @return список персон класса ApiPersonDto
+   */
   private List<ApiPersonDto> convert(List<Person> persons) {
-    return new ArrayList<>();
+    return persons != null ? persons.stream().map(Task4::convert).collect(Collectors.toList())
+            : Collections.emptyList();
   }
 
   private static ApiPersonDto convert(Person person) {
@@ -35,6 +41,6 @@ public class Task4 implements Task {
     Person person1 = new Person(1, "Name", Instant.now());
     Person person2 = new Person(2, "Name", Instant.now());
     return List.of(convert(person1), convert(person2))
-        .equals(convert(List.of(person1, person2)));
+            .equals(convert(List.of(person1, person2)));
   }
 }
