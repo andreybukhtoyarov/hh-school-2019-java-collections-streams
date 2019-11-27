@@ -3,9 +3,9 @@ package tasks;
 import common.ApiPersonDto;
 import common.Person;
 import common.Task;
+import static common.Util.emptyIfNull;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,13 +26,12 @@ public class Task5 implements Task {
    * @return список персон ApiPersonDto.
    */
   private List<ApiPersonDto> convert(List<Person> persons, Map<Integer, Integer> personAreaIds) {
-    return persons != null && personAreaIds != null ? persons.stream()
+    return emptyIfNull(persons).stream()
             .map(
                     person -> convert(
-                            person, personAreaIds.get(person.getId())
+                            person, emptyIfNull(personAreaIds).get(person.getId())
                     )
-            ).collect(Collectors.toList())
-            : Collections.emptyList();
+            ).collect(Collectors.toList());
   }
 
   private static ApiPersonDto convert(Person person, Integer areaId) {

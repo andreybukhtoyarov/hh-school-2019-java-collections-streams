@@ -3,9 +3,9 @@ package tasks;
 import common.Company;
 import common.Task;
 import common.Vacancy;
+import static common.Util.emptyIfNull;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,13 +19,10 @@ public class Task7 implements Task {
    * @return множество названий вакансий.
    */
   private Set<String> vacancyNames(Collection<Company> companies) {
-    return companies != null ? companies.stream()
-            .map(Company::getVacancies)
-            .flatMap(
-                    vacancies -> vacancies.stream().map(Vacancy::getTitle)
-            )
-            .collect(Collectors.toSet())
-            : Collections.emptySet();
+
+    return emptyIfNull(companies).stream()
+            .flatMap(company -> company.getVacancies().stream())
+            .map(Vacancy::getTitle).collect(Collectors.toSet());
   }
 
   @Override

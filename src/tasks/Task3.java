@@ -2,6 +2,7 @@ package tasks;
 
 import common.Person;
 import common.Task;
+import static common.Util.emptyIfNull;
 
 import java.time.Instant;
 import java.util.*;
@@ -20,15 +21,14 @@ public class Task3 implements Task {
    * @return список обобщенного типа Person
    */
   private List<Person> sort(Collection<Person> persons) {
-    return persons != null ? persons.stream()
+    return emptyIfNull(persons).stream()
             .sorted(
                     Comparator
                             .comparing(Person::getSecondName)
                             .thenComparing(Person::getFirstName)
                             .thenComparing(Person::getCreatedAt)
             )
-            .collect(Collectors.toList())
-            : Collections.emptyList();
+            .collect(Collectors.toList());
   }
 
   @Override

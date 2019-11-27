@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 Имеются
@@ -30,19 +31,12 @@ public class Task6 implements Task {
   private Set<String> getPersonDescriptions(Collection<Person> persons,
                                             Map<Integer, Set<Integer>> personAreaIds,
                                             Collection<Area> areas) {
+    Map<Integer, String> areasNames = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
     Set<String> result = new HashSet<>();
     if (persons != null && personAreaIds != null && areas != null) {
-      persons.forEach(
-              person -> personAreaIds.get(person.getId()).forEach(
-                      personAreaId -> result.add(
-                              String.format(
-                                      "%s - %s",
-                                      person.getFirstName(),
-                                      areas.stream()
-                                              .filter(area -> area.getId().equals(personAreaId))
-                                              .findFirst().orElse(new Area(-1, "noExistArea"))
-                                              .getName()
-                              )
+      persons.forEach(person -> personAreaIds.get(person.getId())
+              .forEach(personAreaId -> result.add(
+                      String.format("%s - %s", person.getFirstName(), areasNames.get(personAreaId))
                       )
               )
       );

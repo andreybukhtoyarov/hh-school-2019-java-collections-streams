@@ -2,6 +2,7 @@ package tasks;
 
 import common.Person;
 import common.Task;
+import static common.Util.emptyIfNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,15 +24,14 @@ public class Task8 implements Task {
   /**
    * Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
    *
-   * Ну тут, вроде, норм, но можно чуток подправить.
+   * Избавляемся от ретерна в двух местах.
+   * Тем более проверка, как я теперь знаю, на пустую коллекцию для стримов не нужна.
    *
    * @param persons - список персон List<Person>
    * @return список имен пресон без имени фальшивой персоны
    */
   public List<String> getNames(List<Person> persons) {
-    return persons != null && !persons.isEmpty() ? persons.stream()
-            .skip(1).map(Person::getFirstName).collect(Collectors.toList())
-            : Collections.emptyList();
+    return emptyIfNull(persons).stream().skip(1).map(Person::getFirstName).collect(Collectors.toList());
   }
 
   /**
@@ -39,96 +39,61 @@ public class Task8 implements Task {
    *
    * Так как мы сохраняем во множество - не может быть дубликатов,
    * значит distinct() - лишний. Тем более что можно просто persons передать в конструктор Set.
-   * Не было проверки входных параметров.
    *
    * @param persons - список персон List<Person>
    * @return список имен пресон без дубликатов
    */
   public Set<String> getDifferentNames(List<Person> persons) {
-    return persons != null && !persons.isEmpty() ? new HashSet<>(getNames(persons)) : Collections.emptySet();
+    return new HashSet<>(getNames(persons));
   }
 
   /**
    * Для фронтов выдадим полное имя, а то сами не могут
    *
-   * Убираем конкатенацию, "причесывам" имена для удобства фронтов
-   * (подгоняем шрифт под строчные буквы и делаем заглавными первые буквы слов).
+   * Убираем конкатенацию, проверка на налл теперь в одном месте, в целом читаемость улучшена.
    *
    * @param person - объект Персона
    * @return Полное имя персоны.
    */
   public String convertPersonToString(Person person) {
-    String name = "";
-    if (person != null) {
-      name = String.format("%s %s %s",
-              person.getSecondName() != null ? person.getSecondName() : "",
-              person.getFirstName() != null ? person.getFirstName() : "",
-              person.getMiddleName() != null ? person.getMiddleName() : ""
-      ).trim().toLowerCase();
-    }
-    return person != null ? Stream.of(name.split(" "))
-            .map(
-                    word -> word.replaceFirst(
-                            "[а-я|a-z]{1}",
-                            String.valueOf(Character.toUpperCase(word.charAt(0)))
-                    )
-            )
-            .collect(Collectors.joining(" "))
-            : "";
+    return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(" "));
   }
 
   /**
    * словарь id персоны -> ее имя
    *
-   * Зачем в мапе начальная вместимость 1? Это наверняка опечатка!
-   * Можно задать начальную вместимость - длина коллекции + 25%.
-   * equals класса Person содержит проверку по id, значит можно воспользоваться Set-ом,
-   * вместо проверок в цикле if(!map.containsKey(person.getId()).
-   * Таким образом уберем вложенность - улучшим читабельность текста программы.
+   * Убираем вложенность, создаем словарь и втом же месте его изменяем и возвращаем из метода.
    *
    * @param persons - коллекция объектов типа Person.
    * @return словарь id персоны -> ее имя.
    */
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>();
-    if (persons != null && !persons.isEmpty()) {
-      Set<Person> uniquePersons = new HashSet<>(persons);
-      uniquePersons.forEach(person -> map.put(person.getId(), convertPersonToString(person)));
-    }
-    return map;
+    return emptyIfNull(persons).stream().collect(Collectors.toMap(Person::getId, Person::getFirstName));
   }
 
   /**
    * есть ли совпадающие в двух коллекциях персоны?
    *
-   * Ну тут разве что "бряк" добавить да проверку на налл.
+   * Убираем вложенность.
+   * У оригинала О(n^2), сейчас O(n).
    *
    * @param persons1 - коллекция типа Person
    * @param persons2 - коллекция типа Person
    * @return true если есть хоть один совпадающий елемент.
    */
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    if (persons1 != null && persons2 != null) {
-      for (Person person1 : persons1) {
-        for (Person person2 : persons2) {
-          if (person1.equals(person2)) {
-            has = true;
-            break;
-          }
-        }
-        if (has) {
-          break;
-        }
-      }
-    }
-    return has;
+    Set<Person> persons = Stream
+            .concat(persons1.stream(), persons2.stream())
+            .collect(Collectors.toSet());
+    return persons.size() != (persons1.size() + persons2.size());
   }
 
   /**
    * Выглядит вроде неплохо...
    *
-   * Ну почти неплохо, добвать .count() в конец стрима и совсем будет хорошо.
+   * Улучшаем читабельность.
    *
    * @param numbers - стрим чисел.
    * @return количество четных чисел в стриме.

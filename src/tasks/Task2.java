@@ -2,6 +2,7 @@ package tasks;
 
 import common.Person;
 import common.Task;
+import static common.Util.emptyIfNull;
 
 import java.time.Instant;
 import java.util.*;
@@ -28,12 +29,11 @@ public class Task2 implements Task {
   private static List<Person> combineAndSortWithLimit(Collection<Person> persons1,
                                                       Collection<Person> persons2,
                                                       int limit) {
-    return persons1 != null && persons2 != null && limit > 0 ? Stream
-            .concat(persons1.stream(), persons2.stream())
+    return Stream
+            .concat(emptyIfNull(persons1).stream(), emptyIfNull(persons2).stream())
             .sorted(Comparator.comparing(Person::getCreatedAt))
             .limit(limit)
-            .collect(Collectors.toList())
-            : Collections.emptyList();
+            .collect(Collectors.toList());
   }
 
   @Override
