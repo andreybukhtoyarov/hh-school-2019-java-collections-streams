@@ -5,11 +5,7 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /*
@@ -34,7 +30,7 @@ public class Task6 implements Task {
     Map<Integer, String> areasNames = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
     Set<String> result = new HashSet<>();
     if (persons != null && personAreaIds != null && areas != null) {
-      persons.forEach(person -> personAreaIds.get(person.getId())
+      persons.forEach(person -> personAreaIds.getOrDefault(person.getId(), new HashSet<>())
               .forEach(personAreaId -> result.add(
                       String.format("%s - %s", person.getFirstName(), areasNames.get(personAreaId))
                       )

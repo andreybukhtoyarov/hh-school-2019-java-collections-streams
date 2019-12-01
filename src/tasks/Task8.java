@@ -70,7 +70,7 @@ public class Task8 implements Task {
    * @return словарь id персоны -> ее имя.
    */
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    return emptyIfNull(persons).stream().collect(Collectors.toMap(Person::getId, Person::getFirstName));
+    return emptyIfNull(persons).stream().distinct().collect(Collectors.toMap(Person::getId, this::convertPersonToString));
   }
 
   /**
@@ -84,10 +84,8 @@ public class Task8 implements Task {
    * @return true если есть хоть один совпадающий елемент.
    */
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    Set<Person> persons = Stream
-            .concat(persons1.stream(), persons2.stream())
-            .collect(Collectors.toSet());
-    return persons.size() != (persons1.size() + persons2.size());
+    Set<Person> first = new HashSet<>(persons1);
+    return persons2.stream().anyMatch(first::contains);
   }
 
   /**
